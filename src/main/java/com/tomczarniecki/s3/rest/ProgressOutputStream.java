@@ -27,11 +27,11 @@
  */
 package com.tomczarniecki.s3.rest;
 
-import com.tomczarniecki.s3.ProgressListener;
-
 import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+
+import com.tomczarniecki.s3.ProgressListener;
 
 public class ProgressOutputStream extends FilterOutputStream {
 

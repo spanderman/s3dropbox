@@ -97,8 +97,8 @@ class Controller {
         return service.bucketExists(bucketName);
     }
 
-    public void createBucket(String bucketName, String region) {
-        service.createBucket(bucketName, region);
+    public void createBucket(String bucketName) {
+        service.createBucket(bucketName);
         showBuckets();
     }
 

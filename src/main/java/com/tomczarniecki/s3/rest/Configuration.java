@@ -28,18 +28,21 @@
  */
 package com.tomczarniecki.s3.rest;
 
-import com.amazonaws.ClientConfiguration;
-import com.amazonaws.Protocol;
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.BasicAWSCredentials;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
+
+import com.amazonaws.ClientConfiguration;
+import com.amazonaws.Protocol;
+import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
 
 public class Configuration {
 
     private final String accessKeyId;
     private final String secretAccessKey;
+    private final String region;
     private final String useSecureProtocol;
 
     private final String proxyHost;
@@ -51,11 +54,11 @@ public class Configuration {
     private final String ntlmHost;
     private final String ntlmDomain;
 
-    public Configuration(String accessKeyId, String secretAccessKey) {
-        this(accessKeyId, secretAccessKey, "", "", "", "", "", "", "");
+    public Configuration(String accessKeyId, String secretAccessKey, String region) {
+        this(accessKeyId, secretAccessKey, region, "", "", "", "", "", "", "");
     }
 
-    public Configuration(String accessKeyId, String secretAccessKey,
+    public Configuration(String accessKeyId, String secretAccessKey, String region,
                          String proxyHost, String proxyPort,
                          String proxyUserName, String proxyPassword,
                          String ntlmHost, String ntlmDomain,
@@ -63,6 +66,7 @@ public class Configuration {
 
         this.accessKeyId = accessKeyId;
         this.secretAccessKey = secretAccessKey;
+        this.region = region;
         this.useSecureProtocol = useSecureProtocol;
 
         this.proxyHost = proxyHost;
@@ -83,7 +87,11 @@ public class Configuration {
         return secretAccessKey;
     }
 
-    public String getUseSecureProtocol() {
+    public String getRegion() {
+		return region;
+	}
+
+	public String getUseSecureProtocol() {
         return useSecureProtocol;
     }
 
@@ -111,8 +119,8 @@ public class Configuration {
         return ntlmDomain;
     }
 
-    public AWSCredentials getAWSCredentials() {
-        return new BasicAWSCredentials(accessKeyId, secretAccessKey);
+    public AWSCredentialsProvider getAWSCredentialsProvider() {
+    	return new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKeyId, secretAccessKey));
     }
 
     public ClientConfiguration getClientConfiguration() {

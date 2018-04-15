@@ -28,21 +28,20 @@
  */
 package com.tomczarniecki.s3.rest;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.SystemUtils;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
 
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.SystemUtils;
+
 public class ConfigurationFactory {
 
     private enum Keys {
-        AMAZON_ACCESS_KEY_ID, AMAZON_SECRET_ACCESS_KEY,
+        AMAZON_ACCESS_KEY_ID, AMAZON_SECRET_ACCESS_KEY, REGION,
         PROXY_HOST, PROXY_PORT,
         PROXY_USERNAME, PROXY_PASSWORD,
         NTLM_HOST, NTLM_DOMAIN,
@@ -60,6 +59,7 @@ public class ConfigurationFactory {
         return new Configuration(
                 getRequired(props, Keys.AMAZON_ACCESS_KEY_ID),
                 getRequired(props, Keys.AMAZON_SECRET_ACCESS_KEY),
+                getRequired(props, Keys.REGION),
                 getOptional(props, Keys.PROXY_HOST),
                 getOptional(props, Keys.PROXY_PORT),
                 getOptional(props, Keys.PROXY_USERNAME),
@@ -74,6 +74,7 @@ public class ConfigurationFactory {
         Properties props = new Properties();
         setProperty(props, Keys.AMAZON_ACCESS_KEY_ID, credentials.getAccessKeyId());
         setProperty(props, Keys.AMAZON_SECRET_ACCESS_KEY, credentials.getSecretAccessKey());
+        setProperty(props, Keys.REGION, credentials.getRegion());
         setProperty(props, Keys.PROXY_HOST, credentials.getProxyHost());
         setProperty(props, Keys.PROXY_PORT, credentials.getProxyPort());
         setProperty(props, Keys.PROXY_USERNAME, credentials.getProxyUserName());
@@ -99,32 +100,28 @@ public class ConfigurationFactory {
     }
 
     private Properties loadProperties() {
-        FileInputStream input = null;
-        try {
+        try (
+        		FileInputStream input = new FileInputStream(source);
+        		) {
             Properties props = new Properties();
-            input = new FileInputStream(source);
             props.load(input);
             return props;
 
         } catch (IOException e) {
             throw new RuntimeException(e);
 
-        } finally {
-            IOUtils.closeQuietly(input);
         }
     }
 
     private void saveProperties(Properties props) {
-        FileOutputStream out = null;
-        try {
-            out = new FileOutputStream(source);
+        try (
+        		FileOutputStream out = new FileOutputStream(source);
+        		) {
             props.store(out, null);
 
         } catch (IOException e) {
             throw new RuntimeException(e);
 
-        } finally {
-            IOUtils.closeQuietly(out);
         }
     }
 }

@@ -9,3 +9,7 @@ test.txt
 build
 out
 .idea/
+/bin/
+/.classpath
+/.project
+.settings/

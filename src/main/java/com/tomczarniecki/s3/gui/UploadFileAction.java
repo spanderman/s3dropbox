@@ -35,7 +35,11 @@ import java.io.File;
 
 public class UploadFileAction extends AbstractAction {
 
-    private final UploadWorker uploader;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private final UploadWorker uploader;
     private final Display display;
     private final Worker worker;
 

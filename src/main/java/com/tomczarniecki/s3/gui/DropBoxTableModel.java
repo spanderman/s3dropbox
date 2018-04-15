@@ -44,7 +44,12 @@ import static com.tomczarniecki.s3.Generics.newArrayList;
 
 class DropBoxTableModel extends AbstractTableModel implements DropBoxModel, ControllerListener {
 
-    private final List<DropBoxTableItem> items = newArrayList();
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	private final List<DropBoxTableItem> items = newArrayList();
 
     private final Icon bucketIcon;
     private final Icon objectIcon;

@@ -48,7 +48,11 @@ import static com.tomczarniecki.s3.gui.Constants.MAIN_WINDOW_NAME;
 
 public class DropBox extends JFrame {
 
-    private final DownloadWorker downloader;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private final DownloadWorker downloader;
     private final UploadWorker uploader;
     private final Controller controller;
     private final Executor executor;

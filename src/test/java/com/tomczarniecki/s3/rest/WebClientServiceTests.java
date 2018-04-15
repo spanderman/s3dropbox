@@ -28,11 +28,24 @@
  */
 package com.tomczarniecki.s3.rest;
 
-import com.amazonaws.services.s3.model.Region;
-import com.tomczarniecki.s3.ProgressListener;
-import com.tomczarniecki.s3.S3Bucket;
-import com.tomczarniecki.s3.S3Object;
-import com.tomczarniecki.s3.Service;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.Matchers.hasProperty;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeThat;
+import static org.mockito.Mockito.mock;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.net.URL;
+import java.nio.charset.Charset;
+import java.util.List;
+import java.util.UUID;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.hamcrest.Matcher;
@@ -42,22 +55,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.net.URL;
-import java.util.List;
-import java.util.UUID;
-
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.Matchers.hasProperty;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assume.assumeThat;
-import static org.junit.matchers.JUnitMatchers.hasItem;
-import static org.mockito.Mockito.mock;
+import com.tomczarniecki.s3.ProgressListener;
+import com.tomczarniecki.s3.S3Bucket;
+import com.tomczarniecki.s3.S3Object;
+import com.tomczarniecki.s3.Service;
 
 public class WebClientServiceTests {
 
@@ -98,7 +99,7 @@ public class WebClientServiceTests {
         Service service = new WebClientService(credentials);
         String bucketName = "test-" + UUID.randomUUID();
 
-        service.createBucket(bucketName, Region.US_West.name());
+        service.createBucket(bucketName);
         assertTrue("Bucket should exist", service.bucketExists(bucketName));
         assertThat(service.listAllMyBuckets(), hasItem(bucket(bucketName)));
 
@@ -115,10 +116,10 @@ public class WebClientServiceTests {
         String bucketName = "test-" + UUID.randomUUID();
 
         Service service = new WebClientService(credentials);
-        service.createBucket(bucketName, null);
+        service.createBucket(bucketName);
 
         File file = folder.newFile("foo.txt");
-        FileUtils.writeStringToFile(file, fileContents);
+        FileUtils.writeStringToFile(file, fileContents, Charset.defaultCharset());
 
         assertFalse("Object should not exist", service.objectExists(bucketName, file.getName()));
         service.createObject(bucketName, file.getName(), file, listener);
@@ -135,7 +136,7 @@ public class WebClientServiceTests {
 
         File saved = folder.newFile("saved.txt");
         service.downloadObject(bucketName, file.getName(), saved, listener);
-        assertThat("Corrupted download", FileUtils.readFileToString(saved), equalTo(fileContents));
+        assertThat("Corrupted download", FileUtils.readFileToString(saved, Charset.defaultCharset()), equalTo(fileContents));
 
         service.deleteObject(bucketName, file.getName());
 
@@ -151,13 +152,13 @@ public class WebClientServiceTests {
         ProgressListener listener = mock(ProgressListener.class);
         String fileContents = UUID.randomUUID().toString();
 
-        String bucketName = "test-" + UUID.randomUUID();
+        String bucketName = "testspanderman" + System.currentTimeMillis();
 
         Service service = new WebClientService(credentials);
-        service.createBucket(bucketName, null);
+        service.createBucket(bucketName);
 
         File file = folder.newFile("foo.txt");
-        FileUtils.writeStringToFile(file, fileContents);
+        FileUtils.writeStringToFile(file, fileContents, Charset.defaultCharset());
 
         service.createObject(bucketName, file.getName(), file, listener);
 
@@ -167,7 +168,7 @@ public class WebClientServiceTests {
 
         downloadToFile(publicUrl, saved);
 
-        assertThat("Corrupted download", FileUtils.readFileToString(saved), equalTo(fileContents));
+        assertThat("Corrupted download", FileUtils.readFileToString(saved, Charset.defaultCharset()), equalTo(fileContents));
 
         service.deleteObject(bucketName, file.getName());
 
@@ -183,16 +184,12 @@ public class WebClientServiceTests {
     }
 
     private void downloadToFile(String publicUrl, File saved) throws Exception {
-        InputStream input = null;
-        FileOutputStream output = null;
-        try {
-            input = new URL(publicUrl).openStream();
-            output = new FileOutputStream(saved);
+        try (
+        		InputStream input = new URL(publicUrl).openStream();
+        		FileOutputStream output = new FileOutputStream(saved);
+        		) {
             IOUtils.copy(input, output);
 
-        } finally {
-            IOUtils.closeQuietly(output);
-            IOUtils.closeQuietly(input);
         }
     }
 }

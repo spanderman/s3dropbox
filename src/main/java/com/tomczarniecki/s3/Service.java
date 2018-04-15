@@ -41,7 +41,7 @@ public interface Service {
 
     boolean bucketExists(String bucketName);
 
-    void createBucket(String bucketName, String region);
+    void createBucket(String bucketName);
 
     void deleteBucket(String bucketName);
 

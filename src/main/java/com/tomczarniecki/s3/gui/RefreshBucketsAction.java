@@ -34,7 +34,11 @@ import java.util.concurrent.Executor;
 
 class RefreshBucketsAction extends AbstractAction {
 
-    private final Controller controller;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private final Controller controller;
     private final Executor executor;
 
     public RefreshBucketsAction(Controller controller, Executor executor) {

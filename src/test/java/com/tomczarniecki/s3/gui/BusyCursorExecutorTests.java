@@ -31,7 +31,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.doThrow;
@@ -56,7 +56,6 @@ public class BusyCursorExecutorTests {
     }
 
     @Test
-    @SuppressWarnings({"ThrowableInstanceNeverThrown"})
     public void shouldSetCursorBackToNormalBeforeDisplayingAnyErrorMessage() {
         doThrow(new RuntimeException("test error")).when(command).run();
 

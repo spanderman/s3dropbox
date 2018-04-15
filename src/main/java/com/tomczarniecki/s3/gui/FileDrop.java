@@ -68,7 +68,6 @@ public class FileDrop {
         makeDropTarget(component, dropListener, recursive);
     }
 
-    @SuppressWarnings({"UnusedDeclaration"})
     public static void remove(Component component) {
         remove(component, true);
     }
@@ -235,17 +234,11 @@ public class FileDrop {
             return convertToArray(files);
         }
 
-        @SuppressWarnings({"unchecked"})
         private List<String> readLines(Reader reader) throws Exception {
-            try {
                 return IOUtils.readLines(reader);
-            } finally {
-                IOUtils.closeQuietly(reader);
-            }
         }
 
-        @SuppressWarnings({"unchecked"})
-        private File[] convertToArray(List files) {
+        private File[] convertToArray(List<?> files) {
             return (File[]) files.toArray(new File[files.size()]);
         }
     }

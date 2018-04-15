@@ -44,7 +44,11 @@ import java.awt.event.ActionListener;
 
 class ProgressDialog extends JDialog implements ProgressListener {
 
-    private final JTextArea display;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private final JTextArea display;
     private final JProgressBar progress;
     private final JButton closeButton;
     private final Worker worker;

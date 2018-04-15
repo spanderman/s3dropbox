@@ -74,7 +74,7 @@ public class LocalService implements Service {
         return Collections.singletonList("Local");
     }
 
-    public void createBucket(String bucketName, String region) {
+    public void createBucket(String bucketName) {
         bucketFile(bucketName).mkdirs();
     }
 

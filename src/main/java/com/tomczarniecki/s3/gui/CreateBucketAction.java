@@ -35,7 +35,11 @@ import java.util.concurrent.Executor;
 
 class CreateBucketAction extends AbstractAction {
 
-    private final BucketNameValidator validator;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private final BucketNameValidator validator;
     private final CreateBucketDialog dialog;
     private final Controller controller;
     private final Executor executor;
@@ -53,7 +57,7 @@ class CreateBucketAction extends AbstractAction {
     public void actionPerformed(ActionEvent e) {
         Pair<String, String> bucketNameAndRegion = getBucketNameAndRegion();
         if (bucketNameAndRegion != null) {
-            createBucket(bucketNameAndRegion.getKey(), bucketNameAndRegion.getValue());
+            createBucket(bucketNameAndRegion.getKey());
         }
     }
 
@@ -74,10 +78,10 @@ class CreateBucketAction extends AbstractAction {
         }
     }
 
-    private void createBucket(final String bucketName, final String region) {
+    private void createBucket(final String bucketName) {
         executor.execute(new Runnable() {
             public void run() {
-                controller.createBucket(bucketName, region);
+                controller.createBucket(bucketName);
             }
         });
     }

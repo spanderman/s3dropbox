@@ -27,23 +27,23 @@
  */
 package com.tomczarniecki.s3.gui;
 
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+
+import java.io.File;
+import java.io.IOException;
+
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
-import java.io.File;
-import java.io.IOException;
-
-import static org.mockito.BDDMockito.anyListOf;
-import static org.mockito.BDDMockito.anyString;
-import static org.mockito.BDDMockito.eq;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.mock;
-import static org.mockito.BDDMockito.verify;
+import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class FileDropListenerTests {
@@ -82,7 +82,7 @@ public class FileDropListenerTests {
 
         given(display.createProgressDialog("Upload Progress", worker)).willReturn(dialog);
         given(controller.isShowingObjects()).willReturn(false);
-        given(display.selectOption(eq("Select Folder"), anyString(), anyListOf(String.class))).willReturn("bucket");
+        given(display.selectOption(eq("Select Folder"), anyString(), anyList())).willReturn("bucket");
         given(controller.getSelectedBucketName()).willReturn("bucket");
 
         File file1 = folder.newFile("file1.jpg");

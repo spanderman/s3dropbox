@@ -28,24 +28,8 @@
  */
 package com.tomczarniecki.s3.rest;
 
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.Bucket;
-import com.amazonaws.services.s3.model.ObjectListing;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.amazonaws.services.s3.model.Region;
-import com.amazonaws.services.s3.model.S3ObjectSummary;
-import com.amazonaws.services.s3.transfer.TransferManager;
-import com.amazonaws.services.s3.transfer.Upload;
-import com.tomczarniecki.s3.ProgressListener;
-import com.tomczarniecki.s3.S3Bucket;
-import com.tomczarniecki.s3.S3Object;
-import com.tomczarniecki.s3.Service;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
+import static com.tomczarniecki.s3.Generics.newArrayList;
+import static com.tomczarniecki.s3.Generics.newHashMap;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -57,134 +41,144 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import static com.tomczarniecki.s3.Generics.newArrayList;
-import static com.tomczarniecki.s3.Generics.newHashMap;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.Bucket;
+import com.amazonaws.services.s3.model.ObjectListing;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.Region;
+import com.amazonaws.services.s3.model.S3ObjectSummary;
+import com.amazonaws.services.s3.transfer.TransferManager;
+import com.amazonaws.services.s3.transfer.TransferManagerBuilder;
+import com.amazonaws.services.s3.transfer.Upload;
+import com.tomczarniecki.s3.ProgressListener;
+import com.tomczarniecki.s3.S3Bucket;
+import com.tomczarniecki.s3.S3Object;
+import com.tomczarniecki.s3.Service;
 
 public class WebClientService implements Service {
 
-    private final AmazonS3 client;
-    private final TransferManager transferManager;
-    private final Map<String, String> videoContentTypes;
+	private final AmazonS3 client;
+	private final TransferManager transferManager;
+	private final Map<String, String> videoContentTypes;
 
-    public WebClientService(Configuration config) {
-        // proper HTML5 video content types so that browsers can play the videos
-        Map<String, String> contentTypes = newHashMap();
-        contentTypes.put("ogv", "video/ogg");
-        contentTypes.put("mp4", "video/mp4");
-        contentTypes.put("webm", "video/webm");
+	public WebClientService(Configuration config) {
+		// proper HTML5 video content types so that browsers can play the videos
+		Map<String, String> contentTypes = newHashMap();
+		contentTypes.put("ogv", "video/ogg");
+		contentTypes.put("mp4", "video/mp4");
+		contentTypes.put("webm", "video/webm");
 
-        videoContentTypes = Collections.unmodifiableMap(contentTypes);
-        client = new AmazonS3Client(config.getAWSCredentials(), config.getClientConfiguration());
-        transferManager = new TransferManager(client);
-    }
+		videoContentTypes = Collections.unmodifiableMap(contentTypes);
+		client = AmazonS3ClientBuilder.standard().withCredentials(config.getAWSCredentialsProvider())
+				.withClientConfiguration(config.getClientConfiguration()).withRegion(config.getRegion()).withPathStyleAccessEnabled(true).build();
+		transferManager = TransferManagerBuilder.standard().withS3Client(client).build();
+	}
 
-    public List<String> bucketRegions() {
-        List<String> regions = newArrayList();
-        for (Region region : Region.values()) {
-            regions.add(region.name());
-        }
-        return regions;
-    }
+	public List<String> bucketRegions() {
+		List<String> regions = newArrayList();
+		for (Region region : Region.values()) {
+			regions.add(region.name());
+		}
+		return regions;
+	}
 
-    public List<S3Bucket> listAllMyBuckets() {
-        List<S3Bucket> buckets = newArrayList();
-        for (Bucket bucket : client.listBuckets()) {
-            buckets.add(new S3Bucket(bucket.getName()));
-        }
-        return buckets;
-    }
+	public List<S3Bucket> listAllMyBuckets() {
+		List<S3Bucket> buckets = newArrayList();
+		for (Bucket bucket : client.listBuckets()) {
+			buckets.add(new S3Bucket(bucket.getName()));
+		}
+		return buckets;
+	}
 
-    public boolean bucketExists(String bucketName) {
-        return client.doesBucketExist(bucketName);
-    }
+	public boolean bucketExists(String bucketName) {
+		return client.doesBucketExistV2(bucketName);
+	}
 
-    public void createBucket(String bucketName, String region) {
-        if (region != null) {
-            client.createBucket(bucketName, Region.valueOf(region));
-        } else {
-            client.createBucket(bucketName);
-        }
-    }
+	public void createBucket(String bucketName) {
+		client.createBucket(bucketName);
+	}
 
-    public void deleteBucket(String bucketName) {
-        client.deleteBucket(bucketName);
-    }
+	public void deleteBucket(String bucketName) {
+		client.deleteBucket(bucketName);
+	}
 
-    public List<S3Object> listObjectsInBucket(String bucketName) {
-        List<S3Object> objects = newArrayList();
-        ObjectListing objectListing = client.listObjects(bucketName);
-        for (S3ObjectSummary summary : objectListing.getObjectSummaries()) {
-            DateTime lastModified = new DateTime(summary.getLastModified());
-            lastModified = lastModified.toDateTime(DateTimeZone.getDefault());
-            objects.add(new S3Object(summary.getKey(), summary.getSize(), lastModified.toLocalDateTime()));
-        }
-        Collections.sort(objects);
-        return objects;
-    }
+	public List<S3Object> listObjectsInBucket(String bucketName) {
+		List<S3Object> objects = newArrayList();
+		ObjectListing objectListing = client.listObjects(bucketName);
+		for (S3ObjectSummary summary : objectListing.getObjectSummaries()) {
+			DateTime lastModified = new DateTime(summary.getLastModified());
+			lastModified = lastModified.toDateTime(DateTimeZone.getDefault());
+			objects.add(new S3Object(summary.getKey(), summary.getSize(), lastModified.toLocalDateTime()));
+		}
+		Collections.sort(objects);
+		return objects;
+	}
 
-    public boolean objectExists(String bucketName, String objectKey) {
-        ObjectListing objectListing = client.listObjects(bucketName, objectKey);
-        for (S3ObjectSummary summary : objectListing.getObjectSummaries()) {
-            if (summary.getKey().equals(objectKey)) {
-                return true;
-            }
-        }
-        return false;
-    }
+	public boolean objectExists(String bucketName, String objectKey) {
+		ObjectListing objectListing = client.listObjects(bucketName, objectKey);
+		for (S3ObjectSummary summary : objectListing.getObjectSummaries()) {
+			if (summary.getKey().equals(objectKey)) {
+				return true;
+			}
+		}
+		return false;
+	}
 
-    public void createObject(String bucketName, String objectKey, File source, ProgressListener listener) {
-        PutObjectRequest request = new PutObjectRequest(bucketName, objectKey, source);
-        String contentType = videoContentTypes.get(FilenameUtils.getExtension(source.getName()));
-        if (contentType != null) {
-            ObjectMetadata md = new ObjectMetadata();
-            md.setContentType(contentType);
-            request.setMetadata(md);
-        }
-        request.setProgressListener(new ProgressListenerAdaptor(listener, source.length()));
-        try {
-            Upload upload = transferManager.upload(request);
-            upload.waitForCompletion();
+	public void createObject(String bucketName, String objectKey, File source, ProgressListener listener) {
+		PutObjectRequest request = new PutObjectRequest(bucketName, objectKey, source);
+		String contentType = videoContentTypes.get(FilenameUtils.getExtension(source.getName()));
+		if (contentType != null) {
+			ObjectMetadata md = new ObjectMetadata();
+			md.setContentType(contentType);
+			request.setMetadata(md);
+		}
+		request.setGeneralProgressListener(new ProgressListenerAdaptor(listener, source.length()));
+		try {
+			Upload upload = transferManager.upload(request);
+			upload.waitForCompletion();
 
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-    }
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
-    public void downloadObject(String bucketName, String objectKey, File target, ProgressListener listener) {
-        writeToFile(client.getObject(bucketName, objectKey), target, listener);
-    }
+	public void downloadObject(String bucketName, String objectKey, File target, ProgressListener listener) {
+		writeToFile(client.getObject(bucketName, objectKey), target, listener);
+	}
 
-    public String getPublicUrl(String bucketName, String objectKey, DateTime expires) {
-        return client.generatePresignedUrl(bucketName, objectKey, expires.toDate()).toExternalForm();
-    }
+	public String getPublicUrl(String bucketName, String objectKey, DateTime expires) {
+		return client.generatePresignedUrl(bucketName, objectKey, expires.toDate()).toExternalForm();
+	}
 
-    public void deleteObject(String bucketName, String objectKey) {
-        client.deleteObject(bucketName, objectKey);
-    }
+	public void deleteObject(String bucketName, String objectKey) {
+		client.deleteObject(bucketName, objectKey);
+	}
 
-    public void removeFailedUploads(String bucketName) {
-        transferManager.abortMultipartUploads(bucketName, new Date());
-    }
+	public void removeFailedUploads(String bucketName) {
+		transferManager.abortMultipartUploads(bucketName, new Date());
+	}
 
-    public void close() {
-        transferManager.shutdownNow();
-    }
+	public void close() {
+		transferManager.shutdownNow();
+	}
 
-    private void writeToFile(com.amazonaws.services.s3.model.S3Object object, File target, ProgressListener listener) {
-        long fileLength = object.getObjectMetadata().getContentLength();
-        OutputStream output = null;
-        InputStream input = null;
-        try {
-            input = object.getObjectContent();
-            output = new ProgressOutputStream(new FileOutputStream(target), listener, fileLength);
-            IOUtils.copy(input, output);
+	private void writeToFile(com.amazonaws.services.s3.model.S3Object object, File target, ProgressListener listener) {
+		long fileLength = object.getObjectMetadata().getContentLength();
+		try {
+			InputStream input = object.getObjectContent();
+			OutputStream output = new ProgressOutputStream(new FileOutputStream(target), listener, fileLength);
+			IOUtils.copy(input, output);
 
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
 
-        } finally {
-            IOUtils.closeQuietly(input);
-            IOUtils.closeQuietly(output);
-        }
-    }
+		}
+	}
 }

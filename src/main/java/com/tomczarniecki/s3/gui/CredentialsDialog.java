@@ -46,8 +46,13 @@ import static org.apache.commons.lang.StringUtils.trimToEmpty;
 
 public class CredentialsDialog extends JDialog {
 
-    private final JTextField accessKeyId;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private final JTextField accessKeyId;
     private final JTextField secretAccessKey;
+    private final JTextField region;
 
     private Configuration credentials;
 
@@ -57,6 +62,7 @@ public class CredentialsDialog extends JDialog {
 
         accessKeyId = new JTextField();
         secretAccessKey = new JTextField();
+        region = new JTextField();
 
         getContentPane().add(createDisplayPanel());
         setResizable(false);
@@ -67,6 +73,7 @@ public class CredentialsDialog extends JDialog {
         setLocationRelativeTo(null);
         secretAccessKey.setText("");
         accessKeyId.setText("");
+        region.setText("");
         credentials = null;
         setVisible(true);
         return credentials;
@@ -75,7 +82,7 @@ public class CredentialsDialog extends JDialog {
     private JPanel createDisplayPanel() {
         CellConstraints cc = new CellConstraints();
         String cols = "pref,5dlu,200dlu";
-        String rows = "pref,5dlu,pref,5dlu,pref";
+        String rows = "pref,5dlu,pref,5dlu,pref,5dlu,pref";
 
         PanelBuilder builder = new PanelBuilder(new FormLayout(cols, rows));
         builder.setDefaultDialogBorder();
@@ -83,7 +90,9 @@ public class CredentialsDialog extends JDialog {
         builder.add(accessKeyId, cc.xy(3, 1));
         builder.addLabel("Secret Access Key", cc.xy(1, 3));
         builder.add(secretAccessKey, cc.xy(3, 3));
-        builder.add(createButtonBar(), cc.xyw(1, 5, 3));
+        builder.addLabel("Region", cc.xy(1, 5));
+        builder.add(region, cc.xy(3, 5));
+        builder.add(createButtonBar(), cc.xyw(1, 7, 3));
 
         return builder.getPanel();
     }
@@ -106,8 +115,9 @@ public class CredentialsDialog extends JDialog {
     private void createCredentials() {
         String key = trimToEmpty(accessKeyId.getText());
         String secret = trimToEmpty(secretAccessKey.getText());
+        String region = trimToEmpty(this.region.getText());
         if (isNotEmpty(key) && isNotEmpty(secret)) {
-            credentials = new Configuration(key, secret);
+            credentials = new Configuration(key, secret, region);
         }
     }
 

@@ -34,7 +34,11 @@ import java.util.concurrent.Executor;
 
 class RefreshObjectsAction extends AbstractAction {
 
-    private final Controller controller;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private final Controller controller;
     private final Executor executor;
 
     public RefreshObjectsAction(Controller controller, Executor executor) {

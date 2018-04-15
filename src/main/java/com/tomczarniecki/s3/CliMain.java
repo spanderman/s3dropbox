@@ -27,12 +27,12 @@
  */
 package com.tomczarniecki.s3;
 
-import com.tomczarniecki.s3.rest.Configuration;
-import com.tomczarniecki.s3.rest.ConfigurationFactory;
-import com.tomczarniecki.s3.rest.WebClientService;
-import org.apache.commons.cli.BasicParser;
+import java.io.File;
+import java.util.List;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionGroup;
@@ -40,8 +40,9 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.lang.StringUtils;
 
-import java.io.File;
-import java.util.List;
+import com.tomczarniecki.s3.rest.Configuration;
+import com.tomczarniecki.s3.rest.ConfigurationFactory;
+import com.tomczarniecki.s3.rest.WebClientService;
 
 public class CliMain {
 
@@ -60,7 +61,7 @@ public class CliMain {
         Options options = createOptions();
         Service service = null;
         try {
-            CommandLineParser parser = new BasicParser();
+            CommandLineParser parser = new DefaultParser();
             CommandLine cmd = parser.parse(options, args);
 
             if (cmd.hasOption("help")) {

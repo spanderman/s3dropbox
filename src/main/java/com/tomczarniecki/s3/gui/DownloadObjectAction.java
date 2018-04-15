@@ -36,7 +36,11 @@ import java.io.File;
 
 class DownloadObjectAction extends AbstractAction {
 
-    private final Controller controller;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private final Controller controller;
     private final DownloadWorker worker;
     private final Display display;
 

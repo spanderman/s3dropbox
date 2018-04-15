@@ -37,7 +37,12 @@ import java.util.List;
 
 public class RemoveFailedUploadsAction extends AbstractAction {
 
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private final Controller controller;
     private final ProgressDialog dialog;

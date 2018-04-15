@@ -27,20 +27,21 @@
  */
 package com.tomczarniecki.s3.gui;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 
-import javax.swing.JPopupMenu;
 import java.awt.Component;
 import java.awt.event.MouseEvent;
 
-import static org.mockito.BDDMockito.any;
-import static org.mockito.BDDMockito.anyInt;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.verify;
-import static org.mockito.BDDMockito.verifyZeroInteractions;
+import javax.swing.JPopupMenu;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RightClickListenerTests {

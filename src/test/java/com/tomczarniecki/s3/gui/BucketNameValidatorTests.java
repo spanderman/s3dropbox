@@ -27,16 +27,16 @@
  */
 package com.tomczarniecki.s3.gui;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
+
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.verify;
+import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class BucketNameValidatorTests {

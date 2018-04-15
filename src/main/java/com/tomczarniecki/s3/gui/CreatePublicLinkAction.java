@@ -33,7 +33,11 @@ import java.awt.event.ActionEvent;
 
 class CreatePublicLinkAction extends AbstractAction {
 
-    private final PublicLinkDialog dialog;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private final PublicLinkDialog dialog;
     private final Controller controller;
 
     public CreatePublicLinkAction(Controller controller, Display display) {

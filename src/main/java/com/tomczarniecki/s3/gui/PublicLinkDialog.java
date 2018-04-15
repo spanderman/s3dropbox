@@ -28,12 +28,10 @@
  */
 package com.tomczarniecki.s3.gui;
 
-import com.jgoodies.forms.builder.PanelBuilder;
-import com.jgoodies.forms.layout.CellConstraints;
-import com.jgoodies.forms.layout.FormLayout;
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.math.IntRange;
-import org.joda.time.DateTime;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -42,14 +40,23 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.StringSelection;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.math.IntRange;
+import org.joda.time.DateTime;
+
+import com.jgoodies.forms.builder.PanelBuilder;
+import com.jgoodies.forms.layout.CellConstraints;
+import com.jgoodies.forms.layout.FormLayout;
 
 class PublicLinkDialog extends JDialog {
 
-    private enum Duration {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	public enum Duration {
 
         Seconds, Minutes, Hours, Days, Weeks, Months;
 
@@ -74,8 +81,8 @@ class PublicLinkDialog extends JDialog {
 
     private final Controller controller;
     private final JTextArea display;
-    private final JComboBox offsetSelect;
-    private final JComboBox durationSelect;
+    private final JComboBox<Integer> offsetSelect;
+    private final JComboBox<Duration> durationSelect;
 
     public PublicLinkDialog(JFrame parent, Controller controller) {
         super(parent, true);
@@ -87,11 +94,11 @@ class PublicLinkDialog extends JDialog {
         display.setLineWrap(true);
 
         IntRange offsetRange = new IntRange(1, 100);
-        offsetSelect = new JComboBox(ArrayUtils.toObject(offsetRange.toArray()));
+        offsetSelect = new JComboBox<Integer>(ArrayUtils.toObject(offsetRange.toArray()));
         offsetSelect.setSelectedItem(5);
         offsetSelect.addActionListener(new CreatePublicLinkAction());
 
-        durationSelect = new JComboBox(Duration.values());
+        durationSelect = new JComboBox<Duration>(Duration.values());
         durationSelect.setSelectedItem(Duration.Days);
         durationSelect.addActionListener(new CreatePublicLinkAction());
 
